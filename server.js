@@ -3,7 +3,6 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
-const xssClean = require("xss-clean");
 const hpp = require("hpp");
 
 require("dotenv").config();
@@ -38,7 +37,6 @@ app.use(limiter);
 // جلوگیری از NoSQL Injection
 
 // جلوگیری از حملات XSS
-app.use(xssClean());
 
 // جلوگیری از HTTP Parameter Pollution
 app.use(hpp());
