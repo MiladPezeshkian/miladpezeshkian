@@ -12,7 +12,6 @@ require("dotenv").config();
  * @param {string} param0.message - Message content.
  */
 async function sendTelegramMessage({ name, email, subject, message }) {
-  // ساخت متن پیام با پشتیبانی از UTF-8
   const text = `
 📩 <b>New contact form message:</b>
 
@@ -21,30 +20,48 @@ async function sendTelegramMessage({ name, email, subject, message }) {
 📝 <b>Subject:</b> ${subject || "No subject"}
 ✏️ <b>Message:</b>
 ${message}
-  `;
+  `.trim();
 
   const url = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-    },
-    body: JSON.stringify({
-      chat_id: process.env.TELEGRAM_CHAT_ID,
-      text,
-      parse_mode: "HTML",
-      disable_web_page_preview: true,
-    }),
-  });
+  try {
+    console.log("▶️ [Telegram] Preparing to send message");
+    console.log("▶️ [Telegram] URL:", url);
+    console.log("▶️ [Telegram] Chat ID:", chatId);
+    console.log("▶️ [Telegram] Payload text:", text);
 
-  const result = await response.json();
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        parse_mode: "HTML",
+        disable_web_page_preview: true,
+      }),
+    });
 
-  if (!result.ok) {
-    throw new Error(`Telegram API error: ${result.description}`);
+    console.log("◀️ [Telegram] HTTP status:", response.status);
+    const result = await response.json();
+    console.log("◀️ [Telegram] Response JSON:", result);
+
+    if (!result.ok) {
+      throw new Error(`Telegram API error: ${result.description}`);
+    }
+
+    console.log(
+      "✅ [Telegram] Message sent successfully, message_id:",
+      result.result.message_id
+    );
+    return result;
+  } catch (err) {
+    console.error("🔥 [Telegram] Fetch failed:", err);
+    if (err.cause) console.error("🔥 [Telegram] Cause:", err.cause);
+    throw err;
   }
-
-  return result;
 }
 
 module.exports = { sendTelegramMessage };
