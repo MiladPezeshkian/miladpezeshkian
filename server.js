@@ -5,8 +5,7 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const xssClean = require("xss-clean");
 const hpp = require("hpp");
-const cookieParser = require("cookie-parser");
-const csurf = require("csurf");
+
 require("dotenv").config();
 
 const { sendThankYouEmail } = require("./mailer");
